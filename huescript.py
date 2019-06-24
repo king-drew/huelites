@@ -1,20 +1,24 @@
 #!/usr/bin/env python
 
-import requests,time,json,arrow
+import time
+import json
+from pprint import pprint
 
-userid = "3cf76ab42349b4ef221220dc9b1a257"
-bridgeip = "192.168.1.239"
+import arrow
+import requests
 
 def getbridgeip():
-    pass
+    jason = requests.get('https://www.meethue.com/api/nupnp').json()
+    return jason[0]['internalipaddress']
 
 def getuserid():
-    pass
+    return "3cf76ab42349b4ef221220dc9b1a257"
 
 def geturl(bridgeip, userid):
     return("http://"+bridgeip+"/api/"+userid)
 
 def getlightstates():
+    url = geturl(getbridgeip(), getuserid())
     r = requests.get(url+'/lights')
     return(r.json())
 
@@ -65,27 +69,36 @@ def lightoff(lightid):
         setlightstate(lightid,on=False)
     # requests.put(url+"/lights/1/state", data=json.dumps({"on":False}))
 
-url = geturl(bridgeip, userid)
-now = arrow.now()
-
 def setall(on=None,bri=None,hue=None,sat=None,xy=None,ct=None,alert=None,effect=None,transitiontime=None,bri_inc=None,sat_inc=None,hue_inc=None,ct_inc=None,xy_inc=None):
     lights=['1','3','2']
     for x in lights:
         setlightstate(x,on=on,bri=bri,hue=hue,sat=sat,xy=xy,ct=ct,alert=alert,effect=effect,transitiontime=transitiontime,bri_inc=bri_inc,sat_inc=sat_inc,hue_inc=hue_inc,ct_inc=ct_inc,xy_inc=xy_inc)
 
-if (now.hour==6 and now.minute==30):
-    setall(sat=100,bri=1,on=True)
-    time.sleep(5)
-    setall(bri=255,transitiontime=600)
-elif (now.hour == 7 and now.minute == 45):
-    setall(on=False)
-elif (now.hour == 17 and now.minute==00):
-    setall(hue=14910,bri=254,sat=0,on=True)
-elif (now.hour==20 and now.minute==00):
-    setall(bri_inc=-54,sat_inc=50,transitiontime=50)
-elif (now.hour == 20 and now.minute == 30):
-    setall(bri=115,sat=200,transitiontime=50)
-elif (now.hour==21 and now.minute==00):
-    setall(bri_inc=-100,sat=225,transitiontime=20)
-elif (now.hour==21 and now.minute==30):
-    setall(on=False)
+if __name__ == '__main__':
+    bridgeip = getbridgeip()
+    userid = getuserid()
+    
+    print(bridgeip)
+
+    now = arrow.now()
+
+    state_json = getlightstates()
+
+    pprint(state_json)
+    # if (now.hour==6 and now.minute==30):
+    #     setall(sat=100,bri=1,on=True)
+    #     time.sleep(5)
+    #     setall(bri=255,transitiontime=600)
+    # elif (now.hour == 7 and now.minute == 45):
+    #     setall(on=False)
+    # elif (now.hour == 17 and now.minute==00):
+    #     setall(hue=14910,bri=254,sat=0,on=True)
+    # elif (now.hour==20 and now.minute==00):
+    #     setall(bri_inc=-54,sat_inc=50,transitiontime=50)
+    # elif (now.hour == 20 and now.minute == 30):
+    #     setall(bri=115,sat=200,transitiontime=50)
+    # elif (now.hour==21 and now.minute==00):
+    #     setall(bri_inc=-100,sat=225,transitiontime=20)
+    # elif (now.hour==21 and now.minute==30):
+    #     setall(on=False)
+
